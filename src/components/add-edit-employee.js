@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 import validate from 'validate.js';
 import Swal from 'sweetalert2';
 import { departments, positions } from '../data/constants.js';
-import store from "../store/index.js";
+import { store } from "../store/index.js";
 import { addEmployee } from '../store/employeeSlice.js'
 
 validate.extend(validate.validators.datetime, {
@@ -198,7 +198,7 @@ class AddEditEmployee extends LitElement {
   }
 
   // Capitalize first letter
-  capitalizeFirstLetter(str) {
+  capitalize(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
   }

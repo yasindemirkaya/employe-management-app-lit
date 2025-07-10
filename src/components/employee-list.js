@@ -1,5 +1,5 @@
 import { LitElement, html, css } from "lit";
-import store from "../store/index.js";
+import { store } from "../store/index.js";
 import {
   deleteEmployee,
   setSearchTerm,
