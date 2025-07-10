@@ -13,7 +13,9 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "lit": "^3.3.0",
-    "redux": "^5.0.1"
+    "redux": "^5.0.1",
+    "sweetalert2": "^11.22.2",
+    "validate.js": "^0.13.1"
   },
   "devDependencies": {
     "vite": "^7.0.3"
