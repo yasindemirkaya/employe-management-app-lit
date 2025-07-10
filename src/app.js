@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import './components/app-header.js';
 import './components/employee-list.js';
+import './components/add-edit-employee.js';
 
 class AppRoot extends LitElement {
   static styles = css`
@@ -51,6 +52,9 @@ class AppRoot extends LitElement {
       case '/employees':
       case '/':
         return html`<employee-list></employee-list>`;
+      case '/add':
+      case '/edit':
+        return html`<add-edit-employee></add-edit-employee>`;
       default:
         return html`<p>404 - Page Not Found</p>`;
     }

@@ -78,6 +78,7 @@ class AppHeader extends LitElement {
   }
 
   _navigateTo(path) {
+    // To work like an SPA without reloading the page...
     window.history.pushState({}, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
