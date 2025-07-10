@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import './components/app-header.js';
 import './components/employee-list.js';
 
 class AppRoot extends LitElement {
@@ -7,12 +8,52 @@ class AppRoot extends LitElement {
       display: block;
       font-family: Roboto, sans-serif;
     }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
   `;
 
+  constructor() {
+    super();
+    this._onPopState = this._onPopState.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener('popstate', this._onPopState);
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('popstate', this._onPopState);
+    super.disconnectedCallback();
+  }
+
+  _onPopState() {
+    this.requestUpdate();
+  }
+
   render() {
+    const path = window.location.pathname;
+
     return html`
-      <employee-list></employee-list>
+      <app-header></app-header>
+      <div class="container">
+        ${this.renderRoute(path)}
+      </div>
     `;
+  }
+
+  renderRoute(path) {
+    switch (path) {
+      case '/employees':
+      case '/':
+        return html`<employee-list></employee-list>`;
+      default:
+        return html`<p>404 - Page Not Found</p>`;
+    }
   }
 }
 

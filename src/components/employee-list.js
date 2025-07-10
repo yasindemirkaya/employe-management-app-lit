@@ -50,6 +50,7 @@ class EmployeeList extends LitElement {
     this.searchTerm = initialState.searchTerm;
     this.currentPage = initialState.currentPage;
     this.pageSize = initialState.pageSize;
+    this.viewMode = initialState.viewMode;
     this.employees = initialState.employees.slice(0, this.pageSize);
   }
 
