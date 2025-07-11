@@ -3,7 +3,8 @@ import validate from 'validate.js';
 import Swal from 'sweetalert2';
 import { departments, positions } from '../data/constants.js';
 import { store } from "../store/index.js";
-import { addEmployee } from '../store/employeeSlice.js'
+import { addEmployee, editEmployee } from '../store/employeeSlice.js'
+import { v4 as uuidv4 } from 'uuid';
 
 validate.extend(validate.validators.datetime, {
   parse: function(value) {
@@ -89,6 +90,30 @@ class AddEditEmployee extends LitElement {
     this.validationErrors = {};
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+
+    // Get the id from the URL
+    const params = new URLSearchParams(window.location.search);
+
+    this.id = params.get('id');
+    if(this.id){
+      // Get the employee from the store
+      const employee = store.getState().employee.employees.find(e => e.id === this.id);
+
+      if(employee){
+        this.firstName = employee.firstName;
+        this.lastName = employee.lastName;
+        this.dateOfEmployment = employee.dateOfEmployment;
+        this.dateOfBirth = employee.dateOfBirth;
+        this.phone = employee.phone;
+        this.email = employee.email;
+        this.department = employee.department;
+        this.position = employee.position;
+      }
+    }
+  }
+
   // TEMPLATE
   render() {
     return html`
@@ -167,11 +192,11 @@ class AddEditEmployee extends LitElement {
 
   // METHODS
   // Save button handler
-  handleSave(e) {
+  async handleSave(e) {
     e.preventDefault();
 
-    const newEmployee = {
-      id: Date.now(),
+    const employeeData  = {
+      id: this.id || uuidv4(),
       firstName: this.capitalize(this.firstName.trim()),
       lastName: this.capitalize(this.lastName.trim()),
       dateOfEmployment: this.dateOfEmployment,
@@ -182,14 +207,46 @@ class AddEditEmployee extends LitElement {
       position: this.position
     };
 
-    const errors = validate(newEmployee, this.validationRules);
+    console.log(employeeData)
+    const errors = validate(employeeData , this.validationRules);
     if (errors) {
       this.showValidationErrors(errors);
       return;
     }
 
-    // Add employee to the store
-    store.dispatch(addEmployee(newEmployee));
+    // Inform the user
+    const result = await Swal.fire({
+      title: this.id ? 'Confirm Update' : 'Confirm Addition',
+      text: this.id 
+        ? 'Are you sure you want to update this employee?' 
+        : 'Are you sure you want to add this new employee?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ff6201',
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // If it is in edit mode
+    if(this.id) {
+      store.dispatch(editEmployee(employeeData))
+    } else {
+      // If it is in add mode, then it is a new employee
+      store.dispatch(addEmployee(employeeData ));
+    }
+
+    // Success message
+    await Swal.fire({
+      title: 'Success',
+      text: this.id ? 'Employee updated successfully.' : 'New employee added successfully.',
+      icon: 'success',
+      confirmButtonColor: '#ff6201'
+    });
+
+    // Reset form after saving
     this.resetForm()
 
     // Redirect to employee list

@@ -1,11 +1,6 @@
 import { LitElement, html, css } from "lit";
 import { store } from "../store/index.js";
-import {
-  deleteEmployee,
-  setSearchTerm,
-  setCurrentPage,
-  setViewMode,
-} from "../store/employeeSlice.js";
+import { deleteEmployee, setSearchTerm, setCurrentPage, setViewMode } from "../store/employeeSlice.js";
 import Swal from "sweetalert2";
 
 class EmployeeList extends LitElement {
@@ -92,8 +87,10 @@ class EmployeeList extends LitElement {
   }
 
   // Edit
-  editEmployee(e) {
-    alert("Now editing " + e.firstName + " " + e.lastName);
+  editEmployee(employee) {
+    const url = `/edit?id=${employee.id}`;
+    window.history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent('popstate'));
   }
 
   // TABLE VIEW

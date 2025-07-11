@@ -25,6 +25,7 @@ class AppRoot extends LitElement {
     const outlet = this.renderRoot.querySelector('main');
     const router = new Router(outlet);
     router.setRoutes(routes);
+    window.router = router;
   }
 
   render() {
