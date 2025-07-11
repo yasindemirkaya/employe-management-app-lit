@@ -6,6 +6,7 @@ import {
   setCurrentPage,
   setViewMode,
 } from "../store/employeeSlice.js";
+import Swal from "sweetalert2";
 
 class EmployeeList extends LitElement {
   // PROPERTIES
@@ -73,7 +74,21 @@ class EmployeeList extends LitElement {
 
   // Delete
   deleteEmployee(id) {
-    store.dispatch(deleteEmployee(id));
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ff6201',
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        store.dispatch(deleteEmployee(id));
+        Swal.fire('Deleted', 'The employee has been deleted.', 'success');
+      }
+    });
   }
 
   // Edit

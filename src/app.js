@@ -1,4 +1,8 @@
 import { LitElement, html, css } from 'lit';
+
+import { Router } from '@vaadin/router';
+import { routes } from './routes.js';
+
 import './components/app-header.js';
 import './components/employee-list.js';
 import './components/add-edit-employee.js';
@@ -17,47 +21,17 @@ class AppRoot extends LitElement {
     }
   `;
 
-  constructor() {
-    super();
-    this._onPopState = this._onPopState.bind(this);
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
-    window.addEventListener('popstate', this._onPopState);
-  }
-
-  disconnectedCallback() {
-    window.removeEventListener('popstate', this._onPopState);
-    super.disconnectedCallback();
-  }
-
-  _onPopState() {
-    this.requestUpdate();
+  firstUpdated() {
+    const outlet = this.renderRoot.querySelector('main');
+    const router = new Router(outlet);
+    router.setRoutes(routes);
   }
 
   render() {
-    const path = window.location.pathname;
-
     return html`
       <app-header></app-header>
-      <div class="container">
-        ${this.renderRoute(path)}
-      </div>
+      <main class="container"></main>
     `;
-  }
-
-  renderRoute(path) {
-    switch (path) {
-      case '/employees':
-      case '/':
-        return html`<employee-list></employee-list>`;
-      case '/add':
-      case '/edit':
-        return html`<add-edit-employee></add-edit-employee>`;
-      default:
-        return html`<p>404 - Page Not Found</p>`;
-    }
   }
 }
 
