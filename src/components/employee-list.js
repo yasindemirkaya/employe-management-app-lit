@@ -2,6 +2,7 @@ import { LitElement, html, css } from "lit";
 import { store } from "../store/index.js";
 import { deleteEmployee, setSearchTerm, setCurrentPage, setViewMode } from "../store/employeeSlice.js";
 import Swal from "sweetalert2";
+import i18next from '../i18n.js';
 
 class EmployeeList extends LitElement {
   // PROPERTIES
@@ -16,6 +17,7 @@ class EmployeeList extends LitElement {
   // CONSTRUCTOR
   constructor() {
     super();
+    i18next.on('languageChanged', () => this.requestUpdate());
     this.employees = [];
     this.searchTerm = "";
     this.currentPage = 1;
@@ -70,18 +72,22 @@ class EmployeeList extends LitElement {
   // Delete
   deleteEmployee(id) {
     Swal.fire({
-      title: 'Are you sure?',
-      text: 'This action cannot be undone.',
+      title: i18next.t('Are you sure?'),
+      text: i18next.t('This action cannot be undone.'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ff6201',
       cancelButtonColor: '#aaa',
-      confirmButtonText: 'Yes, Delete',
-      cancelButtonText: 'Cancel'
+      confirmButtonText: i18next.t('Yes'),
+      cancelButtonText: i18next.t('Cancel')
     }).then((result) => {
       if (result.isConfirmed) {
         store.dispatch(deleteEmployee(id));
-        Swal.fire('Deleted', 'The employee has been deleted.', 'success');
+        Swal.fire(
+          i18next.t('Deleted'),
+          i18next.t('The employee has been deleted.'),
+          'success'
+        );
       }
     });
   }
@@ -100,15 +106,15 @@ class EmployeeList extends LitElement {
         <table>
           <thead>
             <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Date of Employment</th>
-              <th>Date of Birth</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Department</th>
-              <th>Position</th>
-              <th>Actions</th>
+              <th>${i18next.t('First Name')}</th>
+              <th>${i18next.t('Last Name')}</th>
+              <th>${i18next.t('Date of Employment')}</th>
+              <th>${i18next.t('Date of Birth')}</th>
+              <th>${i18next.t('Phone')}</th>
+              <th>${i18next.t('Email')}</th>
+              <th>${i18next.t('Department')}</th>
+              <th>${i18next.t('Position')}</th>
+              <th>${i18next.t('Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -137,30 +143,30 @@ class EmployeeList extends LitElement {
   }
 
   // LIST VIEW
-renderListView() {
-  return html`
-    <div class="list-view">
-      ${this.employees.map(e => html`
-        <div class="employee-card">
-          <div class="employee-info-grid">
-            <div><strong>First Name:</strong> ${e.firstName}</div>
-            <div><strong>Last Name:</strong> ${e.lastName}</div>
-            <div><strong>Date of Employment:</strong> ${e.dateOfEmployment}</div>
-            <div><strong>Date of Birth:</strong> ${e.dateOfBirth}</div>
-            <div><strong>Phone:</strong> ${e.phone}</div>
-            <div><strong>Email:</strong> ${e.email}</div>
-            <div><strong>Department:</strong> ${e.department}</div>
-            <div><strong>Position:</strong> ${e.position}</div>
+  renderListView() {
+    return html`
+      <div class="list-view">
+        ${this.employees.map(e => html`
+          <div class="employee-card">
+            <div class="employee-info-grid">
+              <div><strong>${i18next.t('First Name')}:</strong> ${e.firstName}</div>
+              <div><strong>${i18next.t('Last Name')}:</strong> ${e.lastName}</div>
+              <div><strong>${i18next.t('Date of Employment')}:</strong> ${e.dateOfEmployment}</div>
+              <div><strong>${i18next.t('Date of Birth')}:</strong> ${e.dateOfBirth}</div>
+              <div><strong>${i18next.t('Phone')}:</strong> ${e.phone}</div>
+              <div><strong>${i18next.t('Email')}:</strong> ${e.email}</div>
+              <div><strong>${i18next.t('Department')}:</strong> ${e.department}</div>
+              <div><strong>${i18next.t('Position')}:</strong> ${e.position}</div>
+            </div>
+            <div class="actions">
+              <button @click=${() => this.editEmployee(e)}>✏️</button>
+              <button @click=${() => this.deleteEmployee(e.id)}>🗑️</button>
+            </div>
           </div>
-          <div class="actions">
-            <button @click=${() => this.editEmployee(e)}>✏️</button>
-            <button @click=${() => this.deleteEmployee(e.id)}>🗑️</button>
-          </div>
-        </div>
-      `)}
-    </div>
-  `;
-}
+        `)}
+      </div>
+    `;
+  }
 
   // PAGINATION
   renderPagination() {
@@ -214,10 +220,12 @@ renderListView() {
   }
 
   render() {
+    const currentLang = i18next.language;
+
     return html`
       <!-- Top Menu -->
       <div class="top-menu">
-        <h2>Employee List</h2>
+        <h2>${i18next.t('Employee List')}</h2>
         <div class="view-buttons">
           <button
             @click=${() => store.dispatch(setViewMode("table"))}
@@ -237,12 +245,7 @@ renderListView() {
       </div>
 
       <!-- Search -->
-      <input
-        type="text"
-        placeholder="Search employees"
-        .value=${this.searchTerm}
-        @input=${this.onSearchInput}
-      />
+      <input type="text" placeholder=${i18next.t('Search employees')} .value=${this.searchTerm} @input=${this.onSearchInput}/>
 
       ${this.viewMode === "table"
         ? html`${this.renderTableView()}`

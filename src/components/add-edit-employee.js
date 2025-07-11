@@ -5,6 +5,7 @@ import { departments, positions } from '../data/constants.js';
 import { store } from "../store/index.js";
 import { addEmployee, editEmployee } from '../store/employeeSlice.js'
 import { v4 as uuidv4 } from 'uuid';
+import i18next from '../i18n.js';
 
 validate.extend(validate.validators.datetime, {
   parse: function(value) {
@@ -79,6 +80,7 @@ class AddEditEmployee extends LitElement {
   // CONSTRUCTOR
   constructor() {
     super();
+    i18next.on('languageChanged', () => this.requestUpdate());
     this.firstName = '';
     this.lastName = '';
     this.dateOfEmployment = '';
@@ -121,19 +123,19 @@ class AddEditEmployee extends LitElement {
         <div class="row">
           <!-- First Name -->
           <div class="form-group">
-            <label for="firstName">First Name</label>
+            <label for="firstName">${i18next.t('First Name')}</label>
             <input id="firstName" type="text" class="form-control" .value=${this.firstName} @input=${e => this.firstName = e.target.value} />
             ${this.validationErrors.firstName ? html`<span class="error">${this.validationErrors.firstName}</span>` : ''}
           </div>
           <!-- Last Name -->
           <div class="form-group">
-            <label for="lastName">Last Name</label>
+            <label for="lastName">${i18next.t('Last Name')}</label>
             <input id="lastName" type="text" class="form-control" .value=${this.lastName} @input=${e => this.lastName = e.target.value} />
             ${this.validationErrors.lastName ? html`<span class="error">${this.validationErrors.lastName}</span>` : ''}
           </div>
           <!-- Date of Employment -->
           <div class="form-group">
-            <label for="dateOfEmployment">Date of Employment</label>
+            <label for="dateOfEmployment">${i18next.t('Date of Employment')}</label>
             <input id="dateOfEmployment" type="date" class="form-control" .value=${this.dateOfEmployment} @input=${e => this.dateOfEmployment = e.target.value} />
             ${this.validationErrors.dateOfEmployment ? html`<span class="error">${this.validationErrors.dateOfEmployment}</span>` : ''}
           </div>
@@ -142,19 +144,19 @@ class AddEditEmployee extends LitElement {
         <div class="row">
           <!-- Date of Birth -->
           <div class="form-group">
-            <label for="dateOfBirth">Date of Birth</label>
+            <label for="dateOfBirth">${i18next.t('Date of Birth')}</label>
             <input id="dateOfBirth" type="date" class="form-control" .value=${this.dateOfBirth} @input=${e => this.dateOfBirth = e.target.value} />
             ${this.validationErrors.dateOfBirth ? html`<span class="error">${this.validationErrors.dateOfBirth}</span>` : ''}
           </div>
           <!-- Phone -->
           <div class="form-group">
-            <label for="phone">Phone</label>
+            <label for="phone">${i18next.t('Phone')}</label>
             <input id="phone" type="tel" class="form-control" .value=${this.phone} @input=${e => this.phone = e.target.value} pattern="[0-9]*" />
             ${this.validationErrors.phone ? html`<span class="error">${this.validationErrors.phone}</span>` : ''}
           </div>
           <!-- Email -->
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email">${i18next.t('Email')}</label>
             <input id="email" type="email" class="form-control" .value=${this.email} @input=${e => this.email = e.target.value} />
             ${this.validationErrors.email ? html`<span class="error">${this.validationErrors.email}</span>` : ''}
           </div>
@@ -163,7 +165,7 @@ class AddEditEmployee extends LitElement {
         <div class="row">
           <!-- Department -->
           <div class="form-group">
-            <label for="department">Department</label>
+            <label for="department">${i18next.t('Department')}</label>
             <select id="department" class="form-control" .value=${this.department} @change=${e => this.department = e.target.value}>
               <option value="" disabled ?selected=${!this.department}>Please select a department</option>
               ${departments.map(department => html`<option value="${department}">${department}</option>`)}
@@ -172,7 +174,7 @@ class AddEditEmployee extends LitElement {
           </div>
           <!-- Position -->
           <div class="form-group">
-            <label for="position">Position</label>
+            <label for="position">${i18next.t('Position')}</label>
             <select id="position" class="form-control" .value=${this.position} @change=${e => this.position = e.target.value}>
               <option value="" disabled ?selected=${!this.position}>Please select a position</option>
               ${positions.map(position => html`<option value="${position}">${position}</option>`)}
@@ -183,8 +185,8 @@ class AddEditEmployee extends LitElement {
 
         <!-- Buttons -->
         <div class="buttons">
-          <button type="submit">Save</button>
-          <button type="button" @click=${this.handleCancel}>Cancel</button>
+          <button type="submit">${i18next.t('Save')}</button>
+          <button type="button" @click=${this.handleCancel}>${i18next.t('Cancel')}</button>
         </div>
       </form>
     `;
@@ -216,16 +218,18 @@ class AddEditEmployee extends LitElement {
 
     // Inform the user
     const result = await Swal.fire({
-      title: this.id ? 'Confirm Update' : 'Confirm Addition',
+      title: this.id 
+        ? i18next.t('Confirm Update') 
+        : i18next.t('Confirm Addition'),
       text: this.id 
-        ? 'Are you sure you want to update this employee?' 
-        : 'Are you sure you want to add this new employee?',
+        ? i18next.t('Are you sure you want to update this employee?') 
+        : i18next.t('Are you sure you want to add this new employee?'),
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#ff6201',
       cancelButtonColor: '#aaa',
-      confirmButtonText: 'Yes',
-      cancelButtonText: 'Cancel'
+      confirmButtonText: i18next.t('Yes'),
+      cancelButtonText: i18next.t('Cancel')
     });
 
     if (!result.isConfirmed) return;
@@ -240,8 +244,10 @@ class AddEditEmployee extends LitElement {
 
     // Success message
     await Swal.fire({
-      title: 'Success',
-      text: this.id ? 'Employee updated successfully.' : 'New employee added successfully.',
+      title: i18next.t('Success'),
+      text: this.id 
+        ? i18next.t('Employee updated successfully.') 
+        : i18next.t('New employee added successfully.'),
       icon: 'success',
       confirmButtonColor: '#ff6201'
     });
@@ -263,14 +269,14 @@ class AddEditEmployee extends LitElement {
   // Cancel button handler
   handleCancel() {
     Swal.fire({
-      title: 'Are you sure?',
-      text: "Your changes will be lost!",
+      title: i18next.t('Are you sure?'),
+      text: i18next.t('Your changes will be lost!'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ff6201',
       cancelButtonColor: '#aaa',
-      confirmButtonText: 'Yes, cancel',
-      cancelButtonText: 'No, keep editing',
+      confirmButtonText: i18next.t('Yes'),
+      cancelButtonText: i18next.t('No'),
     }).then((result) => {
       if (result.isConfirmed) {
         window.history.back();

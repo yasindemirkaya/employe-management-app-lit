@@ -1,4 +1,8 @@
 import { LitElement, html, css } from 'lit';
+import i18next from '../i18n.js';
+
+import { store } from '../store/index.js';
+import { setLanguage } from '../store/settingsSlice.js';
 
 class AppHeader extends LitElement {
   static styles = css`
@@ -64,30 +68,38 @@ class AppHeader extends LitElement {
     }
   `;
 
+  constructor() {
+    super();
+    i18next.on('languageChanged', () => this.requestUpdate());
+  }
+
   render() {
+    const currentLang = i18next.language;
+    const nextLang = currentLang === 'tr' ? 'EN' : 'TR';
+
     return html`
       <header class="header">
-        <div class="project-name">ING Case Study</div>
+        <div class="project-name">${i18next.t('Project Name')}</div>
         <nav class="nav">
-          <a @click=${() => this._navigateTo('/employees')}>Employees</a>
-          <a @click=${() => this._navigateTo('/add')}>Add New</a>
-          <button class="language-button" @click=${this._toggleLanguage}>EN / TR</button>
+          <a @click=${() => this.navigateTo('/employees')}>${i18next.t('Employees')}</a>
+          <a @click=${() => this.navigateTo('/add')}>${i18next.t('Add New')}</a>
+          <button class="language-button" @click=${this.toggleLanguage}>${nextLang}</button>
         </nav>
       </header>
     `;
   }
 
-  _navigateTo(path) {
+  navigateTo(path) {
     // To work like an SPA without reloading the page...
     window.history.pushState({}, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
 
-  _toggleLanguage() {
-    this.dispatchEvent(new CustomEvent('toggle-language', {
-      bubbles: true,
-      composed: true
-    }));
+  toggleLanguage() {
+    const current = i18next.language;
+    const next = current === 'tr' ? 'en' : 'tr';
+    i18next.changeLanguage(next);
+    store.dispatch(setLanguage(next));
   }
 }
 
