@@ -1,8 +1,12 @@
 import { LitElement, html, css } from "lit";
+
 import { store } from "../store/index.js";
 import { deleteEmployee, setSearchTerm, setCurrentPage, setViewMode } from "../store/employeeSlice.js";
+
 import Swal from "sweetalert2";
 import i18next from '../i18n.js';
+import '@vaadin/grid';
+import '@vaadin/grid/vaadin-grid-sort-column.js'
 
 class EmployeeList extends LitElement {
   // PROPERTIES
@@ -102,43 +106,68 @@ class EmployeeList extends LitElement {
   // TABLE VIEW
   renderTableView() {
     return html`
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>${i18next.t('First Name')}</th>
-              <th>${i18next.t('Last Name')}</th>
-              <th>${i18next.t('Date of Employment')}</th>
-              <th>${i18next.t('Date of Birth')}</th>
-              <th>${i18next.t('Phone')}</th>
-              <th>${i18next.t('Email')}</th>
-              <th>${i18next.t('Department')}</th>
-              <th>${i18next.t('Position')}</th>
-              <th>${i18next.t('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${this.employees.map(
-              (e) => html`
-                <tr>
-                  <td>${e.firstName}</td>
-                  <td>${e.lastName}</td>
-                  <td>${e.dateOfEmployment}</td>
-                  <td>${e.dateOfBirth}</td>
-                  <td>${e.phone}</td>
-                  <td>${e.email}</td>
-                  <td>${e.department}</td>
-                  <td>${e.position}</td>
-                  <td class="actions">
-                    <button @click=${() => this.editEmployee(e)}>✏️</button>
-                    <button @click=${() => this.deleteEmployee(e.id)}>🗑️</button>
-                  </td>
-                </tr>
-              `
-            )}
-          </tbody>
-        </table>
-      </div>
+      <vaadin-grid .items=${this.employees} theme="row-stripes">
+        <vaadin-grid-sort-column
+          path="firstName"
+          header="${i18next.t('First Name')}">
+        </vaadin-grid-sort-column>
+
+        <vaadin-grid-sort-column
+          path="lastName"
+          header="${i18next.t('Last Name')}">
+        </vaadin-grid-sort-column>
+
+        <vaadin-grid-column
+          path="dateOfEmployment"
+          header="${i18next.t('Date of Employment')}">
+        </vaadin-grid-column>
+
+        <vaadin-grid-column
+          path="dateOfBirth"
+          header="${i18next.t('Date of Birth')}">
+        </vaadin-grid-column>
+
+        <vaadin-grid-column
+          path="phone"
+          header="${i18next.t('Phone')}">
+        </vaadin-grid-column>
+
+        <vaadin-grid-column
+          path="email"
+          header="${i18next.t('Email')}">
+        </vaadin-grid-column>
+
+        <vaadin-grid-column
+          path="department"
+          header="${i18next.t('Department')}">
+        </vaadin-grid-column>
+
+        <vaadin-grid-column
+          path="position"
+          header="${i18next.t('Position')}">
+        </vaadin-grid-column>
+
+        <vaadin-grid-column
+          header="${i18next.t('Actions')}"
+          .renderer=${(root, column, rowData) => {
+            const employee = rowData.item;
+            root.innerHTML = `
+              <div class="actions-container">
+                <button class="edit-btn">✏️</button>
+                <button class="delete-btn">🗑️</button>
+              </div>
+            `;
+
+            root.querySelector('.edit-btn')?.addEventListener('click', () => {
+              this.editEmployee(employee);
+            });
+
+            root.querySelector('.delete-btn')?.addEventListener('click', () => {
+              this.deleteEmployee(employee.id);
+            });
+          }}>
+        </vaadin-grid-column>
+      </vaadin-grid>
     `;
   }
 
@@ -159,8 +188,8 @@ class EmployeeList extends LitElement {
               <div><strong>${i18next.t('Position')}:</strong> ${e.position}</div>
             </div>
             <div class="actions">
-              <button @click=${() => this.editEmployee(e)}>✏️</button>
-              <button @click=${() => this.deleteEmployee(e.id)}>🗑️</button>
+              <button class="save-button" @click=${() => this.editEmployee(e)}>✏️</button>
+              <button class="delete-button" @click=${() => this.deleteEmployee(e.id)}>🗑️</button>
             </div>
           </div>
         `)}
@@ -220,36 +249,21 @@ class EmployeeList extends LitElement {
   }
 
   render() {
-    const currentLang = i18next.language;
-
     return html`
       <!-- Top Menu -->
       <div class="top-menu">
         <h2>${i18next.t('Employee List')}</h2>
         <div class="view-buttons">
-          <button
-            @click=${() => store.dispatch(setViewMode("table"))}
-            title="Table View"
-            aria-label="Table View"
-          >
-            🧾
-          </button>
-          <button
-            @click=${() => store.dispatch(setViewMode("list"))}
-            title="List View"
-            aria-label="List View"
-          >
-            📋
-          </button>
+          <button @click=${() => store.dispatch(setViewMode("table"))} title="Table View" aria-label="Table View">🧾</button>
+          <button @click=${() => store.dispatch(setViewMode("list"))} title="List View" aria-label="List View">📋</button>
         </div>
       </div>
 
       <!-- Search -->
       <input type="text" placeholder=${i18next.t('Search employees')} .value=${this.searchTerm} @input=${this.onSearchInput}/>
 
-      ${this.viewMode === "table"
-        ? html`${this.renderTableView()}`
-        : html`${this.renderListView()}`}
+      <!-- Optional employee lits view -->
+      ${this.viewMode === "table" ? html`${this.renderTableView()}` : html`${this.renderListView()}`}
 
       <!-- Pagination -->
       ${this.renderPagination()}
@@ -277,6 +291,13 @@ class EmployeeList extends LitElement {
       color: #ff6201;
       font-size: 1.5rem;
       margin: 0;
+    }
+
+    .list-view {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* 2 sütun sabit */
+      gap: 3rem;
+      margin-top: 20px;
     }
 
     .view-buttons {
@@ -310,59 +331,6 @@ class EmployeeList extends LitElement {
       border: 1px solid #ccc;
       border-radius: 10px;
       box-shadow: -5px 4px 10px -6px rgba(0, 0, 0, 0.75);
-    }
-
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      color: black;
-      font-family: Roboto, sans-serif;
-      table-layout: fixed;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: -5px 4px 10px -6px rgba(0, 0, 0, 0.75);
-    }
-
-    thead tr {
-      background-color: white;
-      color: #ff6201;
-    }
-
-    thead th {
-      padding: 12px 8px;
-      text-align: center;
-      font-weight: bold;
-      color: inherit;
-      border-bottom: 2px solid #ff6201;
-    }
-
-    tbody td {
-      padding: 5px;
-      text-align: center;
-      vertical-align: middle;
-      word-wrap: break-word;
-      color: black;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    tbody tr:hover {
-      background-color: #f1f1f1;
-    }
-
-    td.actions {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
     }
 
     button {
@@ -424,8 +392,13 @@ class EmployeeList extends LitElement {
       border: none;
     }
 
+
     /* Responsive */
     @media (max-width: 768px) {
+      .list-view {
+        grid-template-columns: 1fr;
+      }
+
       .top-menu {
         flex-direction: column;
         align-items: flex-start;
@@ -433,63 +406,6 @@ class EmployeeList extends LitElement {
 
       .view-buttons {
         align-self: flex-end;
-      }
-
-      .table-wrapper {
-        overflow-x: visible;
-      }
-
-      table {
-        display: flex;
-        justify-content: center;
-      }
-
-      thead {
-        display: none;
-      }
-
-      tbody {
-        width: 100%;
-      }
-
-      tbody tr {
-        display: block;
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 10px;
-        background-color: white;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      tbody td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        text-align: left;
-        position: relative;
-        border: none;
-        border-bottom: 1px solid #eee;
-      }
-
-      tbody td:last-child {
-        border-bottom: none;
-      }
-
-      tbody td::before {
-        content: attr(data-label);
-        font-weight: bold;
-        color: #ff6201;
-        flex: 1;
-        padding-right: 10px;
-        min-width: 120px;
-      }
-
-      td.actions {
-        justify-content: flex-start;
-        gap: 10px;
-        padding-top: 10px;
       }
 
       button {
@@ -501,13 +417,6 @@ class EmployeeList extends LitElement {
         width: 20px;
         height: 20px;
       }
-    }
-
-    .list-view {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); /* 👈 sabit 2 sütun */
-      gap: 16px;
-      margin-top: 20px;
     }
 
     .employee-card {
@@ -553,10 +462,24 @@ class EmployeeList extends LitElement {
       cursor: pointer;
       font-weight: 600;
       transition: background-color 0.3s ease;
-    }
-
+    }    
+    
     .employee-card .actions button:hover {
       background-color: #e55500;
+    }
+
+    .employee-card .actions button.delete-button {
+      background-color: #003366;
+      color: white;
+    }
+
+    .employee-card .actions button.delete-button:hover {
+      background-color: #002244; /* lacivertin hover'ı */
+    }
+
+    .actions-container {
+      display: flex;
+      gap: 8px;
     }
   `;
 }
