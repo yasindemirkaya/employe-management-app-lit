@@ -5,6 +5,43 @@ import { store } from '../store/index.js';
 import { setLanguage } from '../store/settingsSlice.js';
 
 class AppHeader extends LitElement {
+  constructor() {
+    super();
+    i18next.on('languageChanged', () => this.requestUpdate());
+  }
+
+  // METHODS
+  navigateTo(path) {
+    // To work like an SPA without reloading the page...
+    window.history.pushState({}, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }
+
+  toggleLanguage() {
+    const current = i18next.language;
+    const next = current === 'tr' ? 'en' : 'tr';
+    i18next.changeLanguage(next);
+    store.dispatch(setLanguage(next));
+  }
+
+  // RENDER
+  render() {
+    const currentLang = i18next.language;
+    const nextLang = currentLang === 'tr' ? 'EN' : 'TR';
+
+    return html`
+      <header class="header">
+        <div class="project-name">${i18next.t('Project Name')}</div>
+        <nav class="nav">
+          <a @click=${() => this.navigateTo('/employees')}>${i18next.t('Employees')}</a>
+          <a @click=${() => this.navigateTo('/add')}>${i18next.t('Add New')}</a>
+          <button class="language-button" @click=${this.toggleLanguage}>${nextLang}</button>
+        </nav>
+      </header>
+    `;
+  }
+  
+  // STYLES
   static styles = css`
     :host {
       display: block;
@@ -67,40 +104,6 @@ class AppHeader extends LitElement {
       padding-left: 12px;
     }
   `;
-
-  constructor() {
-    super();
-    i18next.on('languageChanged', () => this.requestUpdate());
-  }
-
-  render() {
-    const currentLang = i18next.language;
-    const nextLang = currentLang === 'tr' ? 'EN' : 'TR';
-
-    return html`
-      <header class="header">
-        <div class="project-name">${i18next.t('Project Name')}</div>
-        <nav class="nav">
-          <a @click=${() => this.navigateTo('/employees')}>${i18next.t('Employees')}</a>
-          <a @click=${() => this.navigateTo('/add')}>${i18next.t('Add New')}</a>
-          <button class="language-button" @click=${this.toggleLanguage}>${nextLang}</button>
-        </nav>
-      </header>
-    `;
-  }
-
-  navigateTo(path) {
-    // To work like an SPA without reloading the page...
-    window.history.pushState({}, '', path);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  }
-
-  toggleLanguage() {
-    const current = i18next.language;
-    const next = current === 'tr' ? 'en' : 'tr';
-    i18next.changeLanguage(next);
-    store.dispatch(setLanguage(next));
-  }
 }
 
 customElements.define('app-header', AppHeader);
