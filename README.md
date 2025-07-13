@@ -1,2 +1,2 @@
-# employe-management-app-lit
-Employe Management App made with LitElement
+# employee-management-app-lit
+Employee Management App made with LitElement
