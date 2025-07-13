@@ -3,12 +3,21 @@ import { expect, vi } from 'vitest';
 import '../src/components/app-header.js';
 
 // Mock i18next
+let eventHandlers = {};
+
 vi.mock('../src/i18n.js', () => ({
   default: {
     language: 'en',
     t: (key) => key,
     changeLanguage: vi.fn(),
-    on: vi.fn(),
+    on: (event, callback) => {
+      eventHandlers[event] = callback;
+    },
+    emit: (event) => {
+      if (eventHandlers[event]) {
+        eventHandlers[event]();
+      }
+    },
   },
 }));
 
@@ -54,6 +63,16 @@ describe('app-header', () => {
     const el = await fixture(html`<app-header></app-header>`);
     const button = el.shadowRoot.querySelector('.language-button');
     expect(button.textContent).toBe('TR');
+  });
+
+  // Language Changed event
+  it('should request update on languageChanged event', async () => {
+    const el = await fixture(html`<app-header></app-header>`);
+    const spy = vi.spyOn(el, 'requestUpdate');
+    // i18next mocked olduğu için event emit etmemiz lazım:
+    const i18next = (await import('../src/i18n.js')).default;
+    i18next.emit('languageChanged'); // Bu satır mock i18next'de emit metodu varsa.
+    expect(spy).toHaveBeenCalled();
   });
 
   // Navigation links

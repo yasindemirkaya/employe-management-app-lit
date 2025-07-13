@@ -1,9 +1,7 @@
-import { fixture, html } from '@open-wc/testing';
 import { expect, vi } from 'vitest';
-
+import { fixture, html } from '@open-wc/testing';
 import '../src/components/add-edit-employee.js';
 
-// Mock store
 vi.mock('../src/store/index.js', () => {
   return {
     store: {
@@ -11,22 +9,29 @@ vi.mock('../src/store/index.js', () => {
         employee: {
           employees: [
             {
-              id: 'test-id-123',
-              firstName: 'Ahmet',
-              lastName: 'Yılmaz',
-              dateOfEmployment: '2020-05-20',
-              dateOfBirth: '1990-03-15',
-              phone: '5551234567',
-              email: 'ahmet.yilmaz@example.com',
-              department: 'Tech',
-              position: 'Junior'
+                id: 'test-id-123',
+                firstName: 'Ahmet',
+                lastName: 'Yılmaz',
+                dateOfEmployment: '2020-05-20',
+                dateOfBirth: '1990-03-15',
+                phone: '5551234567',
+                email: 'ahmet.yilmaz@example.com',
+                department: 'Tech',
+                position: 'Junior'
             }
           ]
         },
-        settings: {
-          language: 'en'
-        }
+        settings: { language: 'en' }
       })
+    },
+  };
+});
+
+// Mock swal
+vi.mock('sweetalert2', () => {
+  return {
+    default: {
+      fire: vi.fn()
     }
   };
 });
